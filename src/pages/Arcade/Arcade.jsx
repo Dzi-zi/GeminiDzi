@@ -16,14 +16,14 @@ const GAMES = [
   },
   {
     emoji: '🧠',
-    name: 'Ubuntu Quiz',
+    name: 'Quiz',
     description: 'How much do you know about African history, culture, and innovation? Test your knowledge across 10 categories in this fast-paced trivia game.',
     genre: 'Trivia',
     players: '1-4 Players',
     difficulty: 'Easy',
     color: '#C2185B',
-    status: 'coming',
-    path: '/arcade/ubuntuquiz',
+    status: 'live',
+    path: '/arcade/quiz',
     tags: ['Trivia', 'Educational', 'Multiplayer'],
   },
   {

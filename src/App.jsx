@@ -10,6 +10,7 @@ import World     from './pages/World/World'
 import OS        from './pages/OS/OS'
 import Feed      from './pages/Feed/Feed'
 import DocuChat from './pages/Lab/DocuChat/DocuChat'
+import Quiz from './pages/Arcade/Quiz/Quiz'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/OS"        element={<OS />}        />
         <Route path="/Feed"      element={<Feed />}      />
         <Route path="/lab/docuchat" element={<DocuChat />} />
+        <Route path="/arcade/quiz" element={<Quiz />} />
       </Routes>
     </div>
   )
