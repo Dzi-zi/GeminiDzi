@@ -213,22 +213,34 @@ function ContactForm() {
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.message) {
-      setStatus('error')
-      return
-    }
-    setStatus('sending')
+  if (!form.name || !form.email || !form.message) {
+    setStatus('error')
+    return
+  }
+  setStatus('sending')
 
-    // EmailJS — you'll add your Service ID, Template ID, and Public Key
-    // For now opens mailto as a reliable fallback
-    const subject = encodeURIComponent(form.subject || 'Message from DzifaVerse')
-    const body    = encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
-    )
-    window.open(`mailto:matrevidzifa@gmail.com?subject=${subject}&body=${body}`)
+  try {
+    await import('@emailjs/browser').then(({ default: emailjs }) => {
+      return emailjs.send(
+        'service_cfm3ayu',
+        'template_wfi4ojp',
+        {
+          from_name:  form.name,
+          from_email: form.email,
+          subject:    form.subject || 'Message from GeminiDzi Portfolio',
+          message:    form.message,
+          to_email:   'matrevidzifa@gmail.com',
+        },
+        'tfWqE9uV_3Iov7Lbi'
+      )
+    })
     setStatus('sent')
     setForm({ name: '', email: '', subject: '', message: '' })
+  } catch (err) {
+    console.error(err)
+    setStatus('error')
   }
+}
 
   const inputStyle = (field) => ({
     width: '100%',
@@ -259,7 +271,7 @@ function ContactForm() {
             Message Sent!
           </h3>
           <p style={{ color: 'rgba(245,240,232,0.5)', fontFamily: 'Inter, sans-serif' }}>
-            Thank you for reaching out. Dzifa will get back to you soon.
+            Thank you for reaching out. I will get back to you soon.
           </p>
           <button
             onClick={() => setStatus(null)}
@@ -276,7 +288,7 @@ function ContactForm() {
               letterSpacing: '0.1em',
             }}
           >
-            SEND ANOTHER
+            SEND ANOTHER?
           </button>
         </div>
       ) : (
@@ -697,7 +709,7 @@ export default function World() {
             <TimelineItem
               year="BEGINNING"
               title="Discovered the World of Code"
-              description="Started exploring web development — HTML, CSS, and the excitement of seeing something appear on a screen for the first time. The spark was lit."
+              description="Started exploring web development: HTML, CSS, and the excitement of seeing something appear on a screen for the first time. The spark was lit."
               color="#D4AF37"
             />
           </FadeIn>
@@ -719,9 +731,9 @@ export default function World() {
           </FadeIn>
           <FadeIn delay={0.4}>
             <TimelineItem
-              year="NOW — 2025"
+              year="NOW"
               title="Building GeminiDzi"
-              description="Creating a full creative universe full of games, tools, apps, and an Afrofuturist portfolio that represents both technical skill and cultural identity. Applying for roles in May 2025."
+              description="Creating a full creative universe full of games, tools, apps, and an Afrofuturist portfolio that represents both technical skill and cultural identity. Applying for roles starting in May 2025."
               color="#2E7D32"
             />
           </FadeIn>
@@ -729,7 +741,7 @@ export default function World() {
             <TimelineItem
               year="NEXT"
               title="The Universe Expands"
-              description="More games. More tools. More AI. More collaboration. More impact. The DzifaVerse is just getting started."
+              description="More games. More tools. More AI. More collaboration. More impact. The GeminiDzi is just getting started."
               color="#D4AF37"
               isLast
             />
@@ -757,7 +769,7 @@ export default function World() {
                 lineHeight: 1.8,
               }}>
                 Whether you have a job opportunity, a project idea, a collaboration,
-                or just want to say hello — I would love to hear from you.
+                or just want to say hello, I would love to hear from you.
               </p>
 
               {/* Contact details */}
