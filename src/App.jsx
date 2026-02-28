@@ -11,6 +11,7 @@ import OS        from './pages/OS/OS'
 import Feed      from './pages/Feed/Feed'
 import DocuChat from './pages/Lab/DocuChat/DocuChat'
 import Quiz from './pages/Arcade/Quiz/Quiz'
+import SplitEase from './pages/Lab/SplitEase/SplitEase'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/Feed"      element={<Feed />}      />
         <Route path="/lab/docuchat" element={<DocuChat />} />
         <Route path="/arcade/quiz" element={<Quiz />} />
+        <Route path="/lab/splitease" element={<SplitEase />} />
       </Routes>
     </div>
   )

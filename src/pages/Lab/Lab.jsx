@@ -32,7 +32,7 @@ const TOOLS = [
     description: 'Smart bill splitter for groups. Track expenses, split fairly, send reminders, export reports.',
     path: '/lab/splitease',
     color: '#2E7D32',
-    status: 'coming',
+    status: 'live',
   },
   {
     emoji: '❤️',
