@@ -64,14 +64,14 @@ const GAMES = [
   },
   {
     emoji: '🏙',
-    name: 'Lagos 2099',
+    name: 'Void Striker',
     description: 'A city-building strategy game set in a futuristic Lagos. Manage resources, build districts, and lead your megacity into the next century.',
     genre: 'Strategy',
     players: '1 Player',
     difficulty: 'Hard',
     color: '#00BCD4',
-    status: 'coming',
-    path: '/arcade/lagos2099',
+    status: 'live',
+    path: '/arcade/voidstriker',
     tags: ['Strategy', 'City Builder', 'Afrofuturist'],
   },
   {
