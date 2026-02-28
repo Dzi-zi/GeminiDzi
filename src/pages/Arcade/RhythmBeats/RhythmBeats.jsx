@@ -1,5 +1,259 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+// ── Web Audio drum synth ──────────────────────────────────────────────────────
+let audioCtx = null
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  return audioCtx
+}
+
+function playDjembe() {
+  const ctx = getAudio(); const t = ctx.currentTime
+  const osc = ctx.createOscillator(); const env = ctx.createGain()
+  const dist = ctx.createWaveShaper()
+  const curve = new Float32Array(256)
+  for (let i = 0; i < 256; i++) { const x = (i * 2) / 256 - 1; curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x)) }
+  dist.curve = curve
+  osc.connect(dist); dist.connect(env); env.connect(ctx.destination)
+  osc.frequency.setValueAtTime(180, t)
+  osc.frequency.exponentialRampToValueAtTime(55, t + 0.12)
+  env.gain.setValueAtTime(1.2, t)
+  env.gain.exponentialRampToValueAtTime(0.001, t + 0.38)
+  osc.start(t); osc.stop(t + 0.4)
+}
+
+function playKonga() {
+  const ctx = getAudio(); const t = ctx.currentTime
+  const osc = ctx.createOscillator(); const env = ctx.createGain()
+  osc.connect(env); env.connect(ctx.destination)
+  osc.frequency.setValueAtTime(280, t)
+  osc.frequency.exponentialRampToValueAtTime(120, t + 0.08)
+  env.gain.setValueAtTime(0.9, t)
+  env.gain.exponentialRampToValueAtTime(0.001, t + 0.22)
+  osc.start(t); osc.stop(t + 0.25)
+  // Slap noise layer
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
+  const noise = ctx.createBufferSource(); const nEnv = ctx.createGain()
+  const filter = ctx.createBiquadFilter()
+  noise.buffer = buf; filter.type = 'bandpass'
+  filter.frequency.value = 1800; filter.Q.value = 1.5
+  noise.connect(filter); filter.connect(nEnv); nEnv.connect(ctx.destination)
+  nEnv.gain.setValueAtTime(0.4, t); nEnv.gain.exponentialRampToValueAtTime(0.001, t + 0.1)
+  noise.start(t); noise.stop(t + 0.12)
+}
+
+function playHihat() {
+  const ctx = getAudio(); const t = ctx.currentTime
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
+  const noise = ctx.createBufferSource(); const filter = ctx.createBiquadFilter(); const env = ctx.createGain()
+  noise.buffer = buf; filter.type = 'highpass'; filter.frequency.value = 7000; filter.Q.value = 0.8
+  noise.connect(filter); filter.connect(env); env.connect(ctx.destination)
+  env.gain.setValueAtTime(0.6, t); env.gain.exponentialRampToValueAtTime(0.001, t + 0.07)
+  noise.start(t); noise.stop(t + 0.09)
+}
+
+function playTalkingDrum() {
+  const ctx = getAudio(); const t = ctx.currentTime
+  const osc = ctx.createOscillator(); const env = ctx.createGain()
+  osc.connect(env); env.connect(ctx.destination); osc.type = 'sine'
+  osc.frequency.setValueAtTime(420, t)
+  osc.frequency.exponentialRampToValueAtTime(220, t + 0.05)
+  osc.frequency.exponentialRampToValueAtTime(380, t + 0.15)
+  osc.frequency.exponentialRampToValueAtTime(180, t + 0.3)
+  env.gain.setValueAtTime(0.8, t); env.gain.exponentialRampToValueAtTime(0.001, t + 0.35)
+  osc.start(t); osc.stop(t + 0.38)
+}
+
+const DRUM_SOUNDS = [playDjembe, playKonga, playHihat, playTalkingDrum]
+
+function playPerfectChime() {
+  const ctx = getAudio(); const t = ctx.currentTime
+  ;[1047, 1319].forEach((freq, i) => {
+    const osc = ctx.createOscillator(); const env = ctx.createGain()
+    osc.connect(env); env.connect(ctx.destination); osc.type = 'sine'
+    osc.frequency.value = freq
+    env.gain.setValueAtTime(0, t + i * 0.04)
+    env.gain.linearRampToValueAtTime(0.1, t + i * 0.04 + 0.01)
+    env.gain.exponentialRampToValueAtTime(0.001, t + i * 0.04 + 0.18)
+    osc.start(t + i * 0.04); osc.stop(t + i * 0.04 + 0.2)
+  })
+}
+
+// ── Background music engine ───────────────────────────────────────────────────
+// Generates a looping groove at low volume so drums sit clearly on top.
+// Volume balance: bg music ~0.10, drum hits ~0.7–1.2 → drums always cut through.
+
+let bgNodes = []   // nodes to stop when game ends
+
+function stopBgMusic() {
+  bgNodes.forEach(n => { try { n.stop() } catch (_) {} })
+  bgNodes = []
+}
+
+function startBgMusic(patternId) {
+  stopBgMusic()
+  const ctx = getAudio()
+  if (ctx.state === 'suspended') ctx.resume()
+
+  const bpm   = PATTERNS[patternId]?.bpm || 100
+  const beat  = 60 / bpm          // seconds per beat
+  const bar   = beat * 4          // one bar
+
+  // Master gain for bg music — kept quiet so drums dominate
+  const master = ctx.createGain()
+  master.gain.value = 0.09
+  master.connect(ctx.destination)
+
+  // ── 1. Bass line — warm sine wave playing root notes ──
+  const bassNotes = {
+    djembe:   [55, 55, 65, 55],     // A1, A1, C2, A1
+    konga:    [49, 49, 58, 52],     // G1, G1, Bb1, Ab1
+    afrobeats:[58, 58, 69, 65],     // Bb1, Bb1, A2, F2
+    talking:  [52, 52, 62, 55],
+    world:    [55, 62, 58, 65],
+  }
+  const rootFreqs = (bassNotes[patternId] || bassNotes.world).map(n => 440 * Math.pow(2, (n - 69) / 12))
+
+  const scheduleBass = (startTime, bars = 8) => {
+    for (let b = 0; b < bars; b++) {
+      rootFreqs.forEach((freq, i) => {
+        const t = startTime + b * bar + i * beat
+
+        const osc  = ctx.createOscillator()
+        const env  = ctx.createGain()
+        const filt = ctx.createBiquadFilter()
+
+        filt.type = 'lowpass'
+        filt.frequency.value = 280
+        filt.Q.value = 1.2
+
+        osc.connect(filt); filt.connect(env); env.connect(master)
+        osc.type = 'sine'
+        osc.frequency.value = freq
+
+        env.gain.setValueAtTime(0, t)
+        env.gain.linearRampToValueAtTime(0.8, t + 0.02)
+        env.gain.setValueAtTime(0.8, t + beat * 0.6)
+        env.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.85)
+
+        osc.start(t); osc.stop(t + beat)
+        bgNodes.push(osc)
+      })
+    }
+  }
+
+  // ── 2. Soft shaker — noise bursts on every 8th note ──
+  const scheduleShaker = (startTime, bars = 8) => {
+    const steps = bars * 8
+    for (let s = 0; s < steps; s++) {
+      const t    = startTime + s * (beat / 2)
+      const loud = s % 2 === 0  // downbeats slightly louder
+
+      const bufLen = Math.floor(ctx.sampleRate * 0.04)
+      const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate)
+      const data   = buf.getChannelData(0)
+      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1
+
+      const src    = ctx.createBufferSource()
+      const filt   = ctx.createBiquadFilter()
+      const env    = ctx.createGain()
+
+      src.buffer       = buf
+      filt.type        = 'highpass'
+      filt.frequency.value = 5500
+
+      src.connect(filt); filt.connect(env); env.connect(master)
+
+      env.gain.setValueAtTime(loud ? 0.55 : 0.28, t)
+      env.gain.exponentialRampToValueAtTime(0.001, t + 0.038)
+
+      src.start(t); src.stop(t + 0.05)
+      bgNodes.push(src)
+    }
+  }
+
+  // ── 3. Soft kick pulse on beats 1 & 3 ──
+  const scheduleKick = (startTime, bars = 8) => {
+    for (let b = 0; b < bars; b++) {
+      [0, 2].forEach(beatPos => {
+        const t   = startTime + b * bar + beatPos * beat
+        const osc = ctx.createOscillator()
+        const env = ctx.createGain()
+        osc.connect(env); env.connect(master)
+        osc.frequency.setValueAtTime(120, t)
+        osc.frequency.exponentialRampToValueAtTime(38, t + 0.1)
+        env.gain.setValueAtTime(0.7, t)
+        env.gain.exponentialRampToValueAtTime(0.001, t + 0.18)
+        osc.start(t); osc.stop(t + 0.2)
+        bgNodes.push(osc)
+      })
+    }
+  }
+
+  // ── 4. Soft melodic pad — very quiet chord stabs ──
+  const padChords = {
+    djembe:   [[220, 277, 330], [196, 247, 294]],
+    konga:    [[196, 247, 294], [220, 277, 330]],
+    afrobeats:[[233, 294, 349], [220, 277, 330]],
+    talking:  [[207, 261, 311], [196, 247, 294]],
+    world:    [[220, 277, 330], [247, 311, 370]],
+  }
+  const chords = padChords[patternId] || padChords.world
+
+  const schedulePad = (startTime, bars = 8) => {
+    for (let b = 0; b < bars; b++) {
+      const chord = chords[b % chords.length]
+      chord.forEach(freq => {
+        const t   = startTime + b * bar
+        const osc = ctx.createOscillator()
+        const env = ctx.createGain()
+        const filt = ctx.createBiquadFilter()
+        filt.type = 'lowpass'; filt.frequency.value = 800
+        osc.connect(filt); filt.connect(env); env.connect(master)
+        osc.type = 'triangle'
+        osc.frequency.value = freq
+        env.gain.setValueAtTime(0, t)
+        env.gain.linearRampToValueAtTime(0.18, t + 0.06)
+        env.gain.setValueAtTime(0.18, t + bar * 0.7)
+        env.gain.exponentialRampToValueAtTime(0.001, t + bar * 0.95)
+        osc.start(t); osc.stop(t + bar)
+        bgNodes.push(osc)
+      })
+    }
+  }
+
+  // Schedule in chunks so it loops seamlessly
+  const BARS_PER_CHUNK = 8
+  const chunkDur = BARS_PER_CHUNK * bar
+  let nextChunkTime = ctx.currentTime + 0.05
+
+  scheduleBass(nextChunkTime, BARS_PER_CHUNK)
+  scheduleShaker(nextChunkTime, BARS_PER_CHUNK)
+  scheduleKick(nextChunkTime, BARS_PER_CHUNK)
+  schedulePad(nextChunkTime, BARS_PER_CHUNK)
+  nextChunkTime += chunkDur
+
+  // Keep scheduling ahead so music never gaps
+  const loopInterval = setInterval(() => {
+    if (bgNodes.length === 0) { clearInterval(loopInterval); return }
+    const ctx2 = getAudio()
+    if (nextChunkTime - ctx2.currentTime < chunkDur * 0.5) {
+      scheduleBass(nextChunkTime, BARS_PER_CHUNK)
+      scheduleShaker(nextChunkTime, BARS_PER_CHUNK)
+      scheduleKick(nextChunkTime, BARS_PER_CHUNK)
+      schedulePad(nextChunkTime, BARS_PER_CHUNK)
+      nextChunkTime += chunkDur
+    }
+  }, (chunkDur * 0.4) * 1000)
+
+  // Store interval so we can clear it
+  bgNodes.push({ stop: () => clearInterval(loopInterval) })
+}
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 const LANE_COLORS  = ['#E8A040', '#E85870', '#5EC8A0', '#9B78E8']
 const LANE_KEYS    = ['D', 'F', 'J', 'K']
@@ -392,6 +646,7 @@ export default function RhythmDrum() {
     setScore(0)
     setCombo(0)
     setScreen('game')
+    setTimeout(() => startBgMusic(pid), 80)
   }, [])
 
   // ── Game loop ──
@@ -523,6 +778,7 @@ export default function RhythmDrum() {
           miss:    g.miss,
           total:   g.total,
         })
+        stopBgMusic()
         setScreen('results')
         return
       }
@@ -543,6 +799,8 @@ export default function RhythmDrum() {
     const g = gameRef.current
 
     const onKey = (e) => {
+      // Resume audio context on first interaction (browser policy)
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume()
       if (e.repeat) return
       const key  = e.key.toUpperCase()
       const lane = LANE_KEYS.indexOf(key)
@@ -562,6 +820,9 @@ export default function RhythmDrum() {
 
       if (!best) return
 
+      // Always play the drum sound on keypress
+      DRUM_SOUNDS[lane]()
+
       if (bestDiff <= HIT_WINDOW) {
         best.hit = true
         g.combo++
@@ -571,6 +832,7 @@ export default function RhythmDrum() {
         setScore(g.score)
         setCombo(g.combo)
         addFlash(lane, 'PERFECT')
+        playPerfectChime()
       } else if (bestDiff <= GOOD_WINDOW) {
         best.hit = true
         g.combo++
@@ -592,12 +854,33 @@ export default function RhythmDrum() {
     return () => window.removeEventListener('keydown', onKey)
   }, [screen, addFlash])
 
-  // Mobile touch handler
   const handleTouch = (lane) => {
     if (screen !== 'game') return
-    const fakeEvent = { key: LANE_KEYS[lane].toLowerCase(), repeat: false }
-    const onKey = window._rhythmKeyHandler
-    if (onKey) onKey(fakeEvent)
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume()
+    // Simulate keydown for that lane
+    const g = gameRef.current
+    g.lanePress[lane] = 1
+    DRUM_SOUNDS[lane]()
+    const elapsed = performance.now() - g.startTime
+    let best = null, bestDiff = Infinity
+    g.notes.forEach(note => {
+      if (note.hit || note.missed || note.lane !== lane) return
+      const diff = Math.abs(note.time - elapsed)
+      if (diff < bestDiff) { bestDiff = diff; best = note }
+    })
+    if (!best) return
+    if (bestDiff <= HIT_WINDOW) {
+      best.hit = true; g.combo++; g.perfect++
+      const pts = 100 * Math.min(g.combo, 8); g.score += pts
+      setScore(g.score); setCombo(g.combo)
+      addFlash(lane, 'PERFECT'); playPerfectChime()
+    } else if (bestDiff <= GOOD_WINDOW) {
+      best.hit = true; g.combo++; g.good++
+      const pts = 50 * Math.min(g.combo, 8); g.score += pts
+      setScore(g.score); setCombo(g.combo); addFlash(lane, 'GOOD')
+    } else {
+      g.combo = 0; g.miss++; setCombo(0); addFlash(lane, 'MISS')
+    }
   }
 
   return (
@@ -676,7 +959,7 @@ export default function RhythmDrum() {
           </div>
 
           <button
-            onClick={() => { gameRef.current.active = false; setScreen('menu') }}
+            onClick={() => { gameRef.current.active = false; stopBgMusic(); setScreen('menu') }}
             style={{
               marginTop: '1rem', padding: '0.5rem 1.2rem',
               background: 'transparent', border: '2px solid rgba(255,255,255,0.1)',
@@ -695,8 +978,8 @@ export default function RhythmDrum() {
           {...results}
           pattern={patternId}
           difficulty={difficulty}
-          onReplay={() => startGame(patternId, difficulty)}
-          onMenu={() => setScreen('menu')}
+          onReplay={() => { stopBgMusic(); startGame(patternId, difficulty) }}
+          onMenu={() => { stopBgMusic(); setScreen('menu') }}
         />
       )}
 
