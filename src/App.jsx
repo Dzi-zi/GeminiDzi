@@ -12,6 +12,7 @@ import Feed      from './pages/Feed/Feed'
 import DocuChat from './pages/Lab/DocuChat/DocuChat'
 import Quiz from './pages/Arcade/Quiz/Quiz'
 import SplitEase from './pages/Lab/SplitEase/SplitEase'
+import RhythmBeats from './pages/Arcade/RhythmBeats/RhythmBeats'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/lab/docuchat" element={<DocuChat />} />
         <Route path="/arcade/quiz" element={<Quiz />} />
         <Route path="/lab/splitease" element={<SplitEase />} />
+        <Route path="/arcade/rhythmbeats" element={<RhythmBeats />} />
       </Routes>
     </div>
   )

@@ -46,8 +46,8 @@ const GAMES = [
     players: '1 Player',
     difficulty: 'Easy',
     color: '#FF8F00',
-    status: 'coming',
-    path: '/arcade/rhythmdrum',
+    status: 'live',
+    path: '/arcade/rhythmbeats',
     tags: ['Music', 'Rhythm', 'Casual'],
   },
   {
