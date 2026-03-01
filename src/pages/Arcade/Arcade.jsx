@@ -34,7 +34,7 @@ const GAMES = [
     players: '2 Players',
     difficulty: 'Hard',
     color: '#7B2FBE',
-    status: 'coming',
+    status: 'live',
     path: '/arcade/sankofacards',
     tags: ['Strategy', 'Cards', 'Multiplayer'],
   },
