@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom'
 const GAMES = [
   {
     emoji: '🌍',
-    name: 'Platformer',
+    name: 'Worldrunner',
     description: 'A side-scrolling platformer set across places all over the world. Jump, dash, and fight through worlds.',
-    genre: 'Platformer',
+    genre: 'WorldRunner',
     players: '1 Player',
     difficulty: 'Medium',
     color: '#D4AF37',
-    status: 'coming',
-    path: '/arcade/platformer',
+    status: 'live',
+    path: '/arcade/worldrunner',
     tags: ['Action', 'Adventure', 'Futurist'],
   },
   {
