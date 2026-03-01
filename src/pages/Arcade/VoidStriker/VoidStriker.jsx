@@ -439,25 +439,18 @@ export default function VoidStriker() {
       wave:      1,
       lives:     3,
       lastShot:  0,
-      waveState: 'spawning', // spawning | fighting | cleared | bossAlert
+      waveState: 'fighting',
       waveTimer: 0,
-      bossAlerted: false,
+      waveCleared: false,
+
       active:    true,
       t:         0,
     }
-    spawnWave(1)
+    doSpawnWave(stateRef.current, 1)
   }, [])
 
-  function spawnWave(w) {
-    const g = stateRef.current
+  function doSpawnWave(g, w) {
     const defs = getWave(w)
-    const isBoss = w % BOSS_EVERY === 0
-    if (isBoss && !g.bossAlerted) {
-      g.waveState = 'bossAlert'
-      g.waveTimer = 120
-      g.bossAlerted = true
-      sfx.bossAlert()
-    }
     defs.forEach(d => {
       const def = ENEMY_TYPES[d.type]
       g.enemies.push({
@@ -469,6 +462,7 @@ export default function VoidStriker() {
         shootTimer: Math.random() * 60,
       })
     })
+    g.waveState = 'fighting'
   }
 
   // ── Game loop ──
@@ -507,10 +501,7 @@ export default function VoidStriker() {
       // ── Boss alert countdown ──
       if (g.waveState === 'bossAlert') {
         g.waveTimer--
-        if (g.waveTimer <= 0) {
-          g.waveState = 'fighting'
-          spawnWave(g.wave)
-        }
+        if (g.waveTimer <= 0) doSpawnWave(g, g.wave)
       }
 
       // ── Move bullets ──
@@ -610,24 +601,28 @@ export default function VoidStriker() {
 
       // ── Wave cleared? ──
       if (g.waveState === 'fighting' && g.enemies.length === 0) {
+        g.waveState = 'cleared'
         g.wave++
         setWave(g.wave)
         sfx.levelUp()
-        g.waveState = 'spawning'
-        g.bossAlerted = false
-        setTimeout(() => {
-          if (g.active) {
-            const isBoss = g.wave % BOSS_EVERY === 0
-            if (isBoss) {
-              g.waveState = 'bossAlert'
-              g.waveTimer = 150
-              sfx.bossAlert()
-            } else {
-              g.waveState = 'fighting'
-              spawnWave(g.wave)
-            }
-          }
-        }, 1200)
+        const nextWave = g.wave
+        const isBoss = nextWave % BOSS_EVERY === 0
+        if (isBoss) {
+          // Show boss alert first, then spawn
+          g.waveState = 'bossAlert'
+          g.waveTimer = 150
+          sfx.bossAlert()
+        } else {
+          // Brief pause then spawn next wave
+          g.waveTimer = 80
+          g.waveState = 'intermission'
+        }
+      }
+
+      // ── Intermission countdown ──
+      if (g.waveState === 'intermission') {
+        g.waveTimer--
+        if (g.waveTimer <= 0) doSpawnWave(g, g.wave)
       }
 
       // ── Draw ──
@@ -665,7 +660,7 @@ export default function VoidStriker() {
       }
 
       // Wave cleared banner
-      if (g.waveState === 'spawning' && g.wave > 1) {
+      if (g.waveState === 'intermission' || g.waveState === 'cleared') {
         ctx.fillStyle = 'rgba(94,200,255,0.8)'
         ctx.font = 'bold 22px Georgia'
         ctx.textAlign = 'center'
