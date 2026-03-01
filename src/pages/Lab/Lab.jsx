@@ -35,6 +35,14 @@ const TOOLS = [
     status: 'live',
   },
   {
+    emoji: '💸',
+    name: 'GradeCalc',
+    description: 'Smart grade calculator for students. Track assignments, calculate grades, and see what you need to get.',
+    path: '/lab/gradecalc',
+    color: '#2E7D32',
+    status: 'live',
+  },
+  {
     emoji: '❤️',
     name: 'HealthPulse',
     description: 'Personal health dashboard. Log workouts, meals, sleep, and get AI weekly insights.',

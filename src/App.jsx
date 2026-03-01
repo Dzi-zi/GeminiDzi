@@ -14,6 +14,7 @@ import Quiz from './pages/Arcade/Quiz/Quiz'
 import SplitEase from './pages/Lab/SplitEase/SplitEase'
 import RhythmBeats from './pages/Arcade/RhythmBeats/RhythmBeats'
 import VoidStriker from './pages/Arcade/VoidStriker/VoidStriker'
+import GradeCalc from './pages/Lab/GradeCalc/GradeCalc'
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/lab/splitease" element={<SplitEase />} />
         <Route path="/arcade/rhythmbeats" element={<RhythmBeats />} />
         <Route path="/arcade/voidstriker" element={<VoidStriker />} />
+        <Route path="/lab/gradecalc" element={<GradeCalc />} />
       </Routes>
     </div>
   )
