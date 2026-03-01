@@ -82,7 +82,7 @@ const GAMES = [
     players: '1 Player',
     difficulty: 'Medium',
     color: '#7B2FBE',
-    status: 'coming',
+    status: 'live',
     path: '/arcade/griots',
     tags: ['RPG', 'Narrative', 'Fantasy'],
   },

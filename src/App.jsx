@@ -22,6 +22,7 @@ import MoodTunes from './pages/Lab/MoodTunes/MoodTunes'
 import WorldRunner from './pages/Arcade/WorldRunner/WorldRunner'
 import SankofaCards from './pages/Arcade/SankofaCards/SankofaCards'
 import SavannaSprint from './pages/Arcade/SavannaSprint/SavannaSprint'
+import GriotsAndSpirits from './pages/Arcade/GriotsAndSpirits/GriotsAndSpirits'
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
         <Route path="/arcade/worldrunner" element={<WorldRunner />} />
         <Route path="/arcade/sankofacards" element={<SankofaCards />} />
         <Route path="/arcade/savanasprint" element={<SavannaSprint />} />
+        <Route path="/arcade/griots" element={<GriotsAndSpirits />} />
       </Routes>
     </div>
   )
