@@ -13,10 +13,10 @@ const TOOLS = [
   {
     emoji: '🎵',
     name: 'MoodTunes',
-    description: 'Detects your emotion from your webcam and generates a matching Spotify playlist in real time.',
+    description: 'Detects your emotion from your text and generates a matching playlist in real time.',
     path: '/lab/moodtunes',
     color: '#C2185B',
-    status: 'coming',
+    status: 'live',
   },
   {
     emoji: '🎞',

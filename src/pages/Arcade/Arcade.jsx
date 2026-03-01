@@ -4,15 +4,15 @@ import { useNavigate } from 'react-router-dom'
 const GAMES = [
   {
     emoji: '🌍',
-    name: 'Afrofuturist Platformer',
-    description: 'A side-scrolling platformer set across ancient African kingdoms reimagined in the future. Jump, dash, and fight through Kente-woven worlds.',
+    name: 'Platformer',
+    description: 'A side-scrolling platformer set across places all over the world. Jump, dash, and fight through worlds.',
     genre: 'Platformer',
     players: '1 Player',
     difficulty: 'Medium',
     color: '#D4AF37',
     status: 'coming',
     path: '/arcade/platformer',
-    tags: ['Action', 'Adventure', 'Afrofuturist'],
+    tags: ['Action', 'Adventure', 'Futurist'],
   },
   {
     emoji: '🧠',
