@@ -24,7 +24,7 @@ const TOOLS = [
     description: 'Visual CSS animation builder. Design animations and export clean production-ready code.',
     path: '/lab/animationstudio',
     color: '#D4AF37',
-    status: 'coming',
+    status: 'live',
   },
   {
     emoji: '💸',
@@ -48,7 +48,7 @@ const TOOLS = [
     description: 'Personal health dashboard. Log workouts, meals, sleep, and get AI weekly insights.',
     path: '/lab/healthpulse',
     color: '#C2185B',
-    status: 'coming',
+    status: 'live',
   },
   {
     emoji: '📰',

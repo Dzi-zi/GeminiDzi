@@ -15,6 +15,8 @@ import SplitEase from './pages/Lab/SplitEase/SplitEase'
 import RhythmBeats from './pages/Arcade/RhythmBeats/RhythmBeats'
 import VoidStriker from './pages/Arcade/VoidStriker/VoidStriker'
 import GradeCalc from './pages/Lab/GradeCalc/GradeCalc'
+import HealthPulse from './pages/Lab/HealthPulse/HealthPulse'
+import AnimationStudio from './pages/Lab/AnimationStudio/AnimationStudio'
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
         <Route path="/arcade/rhythmbeats" element={<RhythmBeats />} />
         <Route path="/arcade/voidstriker" element={<VoidStriker />} />
         <Route path="/lab/gradecalc" element={<GradeCalc />} />
+        <Route path="/lab/healthpulse" element={<HealthPulse />} />
+        <Route path="/lab/animationstudio" element={<AnimationStudio />} />
       </Routes>
     </div>
   )
