@@ -17,6 +17,7 @@ import VoidStriker from './pages/Arcade/VoidStriker/VoidStriker'
 import GradeCalc from './pages/Lab/GradeCalc/GradeCalc'
 import HealthPulse from './pages/Lab/HealthPulse/HealthPulse'
 import AnimationStudio from './pages/Lab/AnimationStudio/AnimationStudio'
+import NewsRoom from './pages/Lab/NewsRoom/NewsRoom'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/lab/gradecalc" element={<GradeCalc />} />
         <Route path="/lab/healthpulse" element={<HealthPulse />} />
         <Route path="/lab/animationstudio" element={<AnimationStudio />} />
+        <Route path="/lab/newsroom" element={<NewsRoom />} />
       </Routes>
     </div>
   )

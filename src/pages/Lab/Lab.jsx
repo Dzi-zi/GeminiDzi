@@ -56,7 +56,7 @@ const TOOLS = [
     description: 'Personalised news aggregator that learns your preferences and summarises articles with AI.',
     path: '/lab/newsroom',
     color: '#00BCD4',
-    status: 'coming',
+    status: 'live',
   },
 ]
 
