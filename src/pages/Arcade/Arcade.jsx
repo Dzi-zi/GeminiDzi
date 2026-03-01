@@ -58,7 +58,7 @@ const GAMES = [
     players: '1 Player',
     difficulty: 'Easy',
     color: '#2E7D32',
-    status: 'coming',
+    status: 'live',
     path: '/arcade/savanasprint',
     tags: ['Runner', 'Casual', 'Arcade'],
   },

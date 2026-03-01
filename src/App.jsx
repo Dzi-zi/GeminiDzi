@@ -21,6 +21,7 @@ import NewsRoom from './pages/Lab/NewsRoom/NewsRoom'
 import MoodTunes from './pages/Lab/MoodTunes/MoodTunes'
 import WorldRunner from './pages/Arcade/WorldRunner/WorldRunner'
 import SankofaCards from './pages/Arcade/SankofaCards/SankofaCards'
+import SavannaSprint from './pages/Arcade/SavannaSprint/SavannaSprint'
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
         <Route path="/lab/moodtunes" element={<MoodTunes />} />
         <Route path="/arcade/worldrunner" element={<WorldRunner />} />
         <Route path="/arcade/sankofacards" element={<SankofaCards />} />
+        <Route path="/arcade/savanasprint" element={<SavannaSprint />} />
       </Routes>
     </div>
   )
