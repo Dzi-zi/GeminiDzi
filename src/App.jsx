@@ -23,6 +23,7 @@ import WorldRunner from './pages/Arcade/WorldRunner/WorldRunner'
 import SankofaCards from './pages/Arcade/SankofaCards/SankofaCards'
 import SavannaSprint from './pages/Arcade/SavannaSprint/SavannaSprint'
 import GriotsAndSpirits from './pages/Arcade/GriotsAndSpirits/GriotsAndSpirits'
+import MamiWata from './pages/Arcade/MamiWata/MamiWata'
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
         <Route path="/arcade/sankofacards" element={<SankofaCards />} />
         <Route path="/arcade/savanasprint" element={<SavannaSprint />} />
         <Route path="/arcade/griots" element={<GriotsAndSpirits />} />
+        <Route path="/arcade/mamiwata" element={<MamiWata />} />
       </Routes>
     </div>
   )

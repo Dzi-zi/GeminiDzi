@@ -106,7 +106,7 @@ const GAMES = [
     players: '1 Player',
     difficulty: 'Medium',
     color: '#00BCD4',
-    status: 'coming',
+    status: 'live',
     path: '/arcade/mamiwata',
     tags: ['Puzzle', 'Platformer', 'Spiritual'],
   },
