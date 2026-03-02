@@ -1,314 +1,447 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 
-const PUZZLE_GAMES = [
-  {
-    id: 'logic-grid',
-    title: 'Logic Grid',
-    subtitle: 'deductive reasoning',
-    desc: 'Solve classic logic puzzles using a grid of clues. Who owns the fish? Who drinks the water?',
-    icon: '⬛',
-    difficulty: 'medium',
-    tag: 'logic',
-    status: 'coming',
-    color: '#5B9BD5',
-  },
-  {
-    id: 'sequence',
-    title: 'Next in Line',
-    subtitle: 'pattern recognition',
-    desc: 'What comes next? Spot the rule hiding inside number, shape and word sequences.',
-    icon: '🔢',
-    difficulty: 'easy',
-    tag: 'patterns',
-    status: 'coming',
-    color: '#6AAF7A',
-  },
-  {
-    id: 'cipher',
-    title: 'Cipher Room',
-    subtitle: 'cryptography',
-    desc: 'Decode encrypted messages using Caesar shifts, substitution ciphers and frequency analysis.',
-    icon: '🔐',
-    difficulty: 'hard',
-    tag: 'crypto',
-    status: 'coming',
-    color: '#D4AF37',
-  },
-  {
-    id: 'memory',
-    title: 'Memory Palace',
-    subtitle: 'spatial memory',
-    desc: 'Study a room full of objects. They move. You find what changed. Against the clock.',
-    icon: '🏛',
-    difficulty: 'medium',
-    tag: 'memory',
-    status: 'coming',
-    color: '#A78BFA',
-  },
-  {
-    id: 'word',
-    title: 'Word Weave',
-    subtitle: 'linguistics',
-    desc: 'Connect words by hidden relationships — opposites, homophones, hidden words inside words.',
-    icon: '📖',
-    difficulty: 'easy',
-    tag: 'language',
-    status: 'coming',
-    color: '#FF8B94',
-  },
-  {
-    id: 'nonogram',
-    title: 'Nonogram',
-    subtitle: 'grid deduction',
-    desc: 'Fill a grid using row and column clues to reveal a hidden picture. Satisfying and addictive.',
-    icon: '🖼',
-    difficulty: 'hard',
-    tag: 'visual',
-    status: 'coming',
-    color: '#4ECDC4',
-  },
-]
+// ── Mind Games District Identity ──────────────────────────────────────────────
+// Concept: A detective's case file. Aged paper. Red string. Classified stamps.
+// Background: Near-black ink (#0D0B08) — warm dark, not cold cyberpunk
+// Cards: Warm parchment surface (#1A1610) against the ink background
+// Display font: "Special Elite" — typewriter / detective case file energy
+// Body font: DM Mono for that case-file document feel
+// Accent: Faded red (#C0392B) like a RED stamp or red string pinboard
+// Secondary: Aged gold (#C8A96E) like old paper / evidence tags
+// No generic glows — torn-paper corner folds, dashed borders, stamp aesthetics
 
+const C = {
+  bg:          '#0D0B08',          // warm ink black
+  surface:     '#1A1610',          // aged parchment dark
+  surfaceHov:  '#221E16',          // slightly lifted
+  surfacePaper:'rgba(255,248,230,0.04)', // faint warm paper tint
+  red:         '#C0392B',          // evidence red / red string
+  redFaint:    'rgba(192,57,43,0.12)',
+  gold:        '#C8A96E',          // aged gold / evidence tags
+  goldFaint:   'rgba(200,169,110,0.12)',
+  green:       '#4A7C59',          // case closed stamp green
+  text:        '#EDE8DC',          // warm aged paper white
+  muted:       'rgba(237,232,220,0.5)',
+  faint:       'rgba(237,232,220,0.22)',
+  border:      'rgba(237,232,220,0.1)',
+  borderWarm:  'rgba(200,169,110,0.2)',
+  stamp:       'rgba(192,57,43,0.18)',
+}
+
+const R = { sm: '2px', md: '4px', lg: '8px' }  // intentionally tighter — documents, not bubbly UI
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
+
+// Type scale — ALL display text in Special Elite (typewriter)
+// Body/labels in DM Mono (document feel)
+const T = {
+  label:   { fontFamily: '"Special Elite", cursive',  fontSize: '0.7rem',  fontWeight: 400, letterSpacing: '0.18em', textTransform: 'uppercase' },
+  h1:      { fontFamily: '"Special Elite", cursive',  fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 400, letterSpacing: '0.02em', lineHeight: 1.0 },
+  h2:      { fontFamily: '"Special Elite", cursive',  fontSize: 'clamp(1.4rem, 3vw, 2rem)',   fontWeight: 400, letterSpacing: '0.04em', lineHeight: 1.1 },
+  h3:      { fontFamily: '"Special Elite", cursive',  fontSize: '1rem',    fontWeight: 400, letterSpacing: '0.03em' },
+  body:    { fontFamily: '"DM Mono", monospace',       fontSize: '0.82rem', fontWeight: 400, lineHeight: 1.75 },
+  small:   { fontFamily: '"DM Mono", monospace',       fontSize: '0.73rem', fontWeight: 400, lineHeight: 1.65 },
+  tiny:    { fontFamily: '"DM Mono", monospace',       fontSize: '0.62rem', fontWeight: 400, letterSpacing: '0.06em' },
+  quote:   { fontFamily: '"Special Elite", cursive',  fontSize: '0.85rem', fontWeight: 400, fontStyle: 'normal', lineHeight: 1.6 },
+  casenum: { fontFamily: '"DM Mono", monospace',       fontSize: '0.58rem', fontWeight: 400, letterSpacing: '0.14em' },
+}
+
+const DIFF_COLOR  = { easy: C.green,  medium: C.gold,   hard: C.red }
+const DIFF_LABEL  = { easy: 'LOW',    medium: 'MED',    hard: 'HIGH' }
+
+// ── Data ──────────────────────────────────────────────────────────────────────
 const MYSTERY_GAMES = [
   {
     id: 'the-last-guest',
     title: 'The Last Guest',
-    subtitle: 'chapter one',
+    subtitle: 'Chapter One',
     desc: 'A dinner party. Six guests. One disappeared before midnight. Read the statements, spot the lie, name the culprit.',
-    icon: '🕯',
-    difficulty: 'medium',
-    tag: 'mystery',
-    status: 'coming',
-    color: '#E8758A',
-    chapters: 3,
+    difficulty: 'medium', tag: 'Mystery', color: C.red, chapters: 3,
     teaser: 'Someone at the table is not who they say they are.',
+    classification: 'OPEN',
   },
   {
     id: 'dead-letters',
     title: 'Dead Letters',
-    subtitle: 'postal inspector',
+    subtitle: 'Postal Inspector',
     desc: 'A series of strange letters, all addressed to people who no longer exist. Read them in order. Find the pattern.',
-    icon: '✉️',
-    difficulty: 'hard',
-    tag: 'detective',
-    status: 'coming',
-    color: '#D4AF37',
-    chapters: 5,
+    difficulty: 'hard', tag: 'Detective', color: C.gold, chapters: 5,
     teaser: 'Every postmark tells a story. Not all stories end well.',
+    classification: 'OPEN',
   },
   {
     id: 'village-of-echoes',
     title: 'Village of Echoes',
-    subtitle: 'point and explore',
-    desc: 'A small village. Strange events every night for seven nights. Talk to residents, collect clues, solve the mystery.',
-    icon: '🌲',
-    difficulty: 'hard',
-    tag: 'adventure',
-    status: 'coming',
-    color: '#6AAF7A',
-    chapters: 7,
+    subtitle: 'Point and Explore',
+    desc: 'A small village. Strange events every night for seven nights. Talk to residents, collect clues, and solve it before the last night.',
+    difficulty: 'hard', tag: 'Adventure', color: C.gold, chapters: 7,
     teaser: 'The villagers all remember differently. Someone is lying.',
+    classification: 'OPEN',
   },
   {
     id: 'exhibit-b',
     title: 'Exhibit B',
-    subtitle: 'crime scene analysis',
-    desc: 'You are given a crime scene photograph. Study every detail. Answer the detective\'s questions. Nothing is accidental.',
-    icon: '🔍',
-    difficulty: 'medium',
-    tag: 'investigation',
-    status: 'coming',
-    color: '#FF6B35',
-    chapters: 4,
+    subtitle: 'Crime Scene Analysis',
+    desc: "You are given a crime scene photograph. Study every detail. Answer the detective's questions. Nothing is accidental.",
+    difficulty: 'medium', tag: 'Investigation', color: C.red, chapters: 4,
     teaser: 'The answer is already in front of you.',
+    classification: 'OPEN',
   },
   {
     id: 'the-cartographer',
     title: 'The Cartographer',
-    subtitle: 'map mystery',
+    subtitle: 'Map Mystery',
     desc: 'An old map surfaces at an estate auction. Hidden within it: coordinates, symbols, a trail of breadcrumbs across three centuries.',
-    icon: '🗺',
-    difficulty: 'hard',
-    tag: 'puzzle',
-    status: 'coming',
-    color: '#A78BFA',
-    chapters: 6,
+    difficulty: 'hard', tag: 'Puzzle', color: C.gold, chapters: 6,
     teaser: 'The map was never meant to be found.',
+    classification: 'OPEN',
   },
 ]
 
-const DIFF_COLORS = { easy: '#6AAF7A', medium: '#D4AF37', hard: '#E8758A' }
+const PUZZLE_GAMES = [
+  { id: 'logic-grid', title: 'Logic Grid',    subtitle: 'Deductive Reasoning', desc: 'Solve logic puzzles using a grid of clues. Eliminate the impossible. What remains must be the truth.',               difficulty: 'medium', tag: 'Logic',    color: C.gold   },
+  { id: 'sequence',   title: 'Next in Line',  subtitle: 'Pattern Recognition', desc: 'What comes next? Spot the rule hiding inside number, shape, and word sequences before the timer runs out.',            difficulty: 'easy',   tag: 'Patterns', color: C.green  },
+  { id: 'cipher',     title: 'Cipher Room',   subtitle: 'Cryptography',        desc: 'Decode encrypted messages using Caesar shifts, substitution ciphers, and frequency analysis.',                          difficulty: 'hard',   tag: 'Crypto',   color: C.red    },
+  { id: 'memory',     title: 'Memory Palace', subtitle: 'Spatial Memory',      desc: 'Study a room full of objects. They move. You find what changed. Each round, the changes multiply.',                    difficulty: 'medium', tag: 'Memory',   color: C.gold   },
+  { id: 'word',       title: 'Word Weave',    subtitle: 'Linguistics',         desc: 'Connect words by hidden relationships — opposites, homophones, words hidden inside other words. Six connections.',     difficulty: 'easy',   tag: 'Language', color: C.green  },
+  { id: 'nonogram',   title: 'Nonogram',      subtitle: 'Grid Deduction',      desc: 'Fill a grid using row and column clues to reveal a hidden picture. Scales from 5x5 up to 20x20.',                     difficulty: 'hard',   tag: 'Visual',   color: C.red    },
+]
 
-function PuzzleCard({ game, index }) {
-  const [hov, setHov] = useState(false)
+// ── Dashed stamp border component ─────────────────────────────────────────────
+function ClassificationStamp({ label, color }) {
   return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: hov ? `rgba(${game.color === '#5B9BD5' ? '91,155,213' : game.color === '#6AAF7A' ? '106,175,122' : game.color === '#D4AF37' ? '212,175,55' : game.color === '#A78BFA' ? '167,139,250' : game.color === '#FF8B94' ? '255,139,148' : '78,205,196'},0.08)` : 'rgba(255,255,255,0.03)',
-        border: `2px solid ${hov ? game.color + '50' : 'rgba(255,255,255,0.07)'}`,
-        borderRadius: '14px', padding: '1.3rem',
-        cursor: 'default', transition: 'all 0.2s ease',
-        animation: `fadeUp 0.4s ease ${index * 0.06}s both`,
-        position: 'relative', overflow: 'hidden',
-      }}
-    >
-      {/* Corner fold */}
-      <div style={{ position: 'absolute', top: 0, right: 0, width: '28px', height: '28px', background: `linear-gradient(225deg, ${game.color}30 50%, transparent 50%)` }} />
-
-      <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}>
-        <div style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>{game.icon}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
-            <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', fontWeight: 700, color: '#F0EDE8', margin: 0 }}>{game.title}</h3>
-            <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.58rem', fontWeight: 700, color: DIFF_COLORS[game.difficulty], background: DIFF_COLORS[game.difficulty] + '18', padding: '0.15rem 0.5rem', borderRadius: '20px', flexShrink: 0, marginLeft: '0.5rem' }}>{game.difficulty}</span>
-          </div>
-          <div style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', color: game.color, letterSpacing: '0.08em', marginBottom: '0.5rem' }}>{game.tag}</div>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.8rem', color: 'rgba(240,237,232,0.55)', margin: '0 0 0.8rem', lineHeight: 1.55 }}>{game.desc}</p>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>coming soon</span>
-        </div>
-      </div>
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '0.18rem 0.55rem',
+      border: `1.5px solid ${color}60`,
+      borderRadius: R.sm,
+      background: `${color}10`,
+      transform: 'rotate(-1.5deg)',
+    }}>
+      <span style={{ ...T.casenum, color, letterSpacing: '0.16em' }}>{label}</span>
     </div>
   )
 }
 
+// ── Mystery card — looks like a physical case file ────────────────────────────
 function MysteryCard({ game, index }) {
   const [hov, setHov] = useState(false)
+
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: hov ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-        border: `2px solid ${hov ? game.color + '60' : 'rgba(255,255,255,0.07)'}`,
-        borderRadius: '14px', padding: '1.4rem',
-        cursor: 'default', transition: 'all 0.2s ease',
-        animation: `fadeUp 0.4s ease ${index * 0.08}s both`,
         position: 'relative',
+        background: hov ? C.surfaceHov : C.surface,
+        border: `1px solid ${hov ? C.borderWarm : C.border}`,
+        borderRadius: R.lg,
+        padding: '1.5rem',
+        cursor: 'default',
+        transition: `transform 0.25s ${EASE}, border-color 0.2s ease, background 0.2s ease`,
+        transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+        boxShadow: hov ? '0 8px 24px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.3)',
+        animation: `caseIn 0.45s ${EASE} ${index * 70}ms both`,
+        // Torn paper effect — very subtle right edge
+        borderRight: `1px solid ${hov ? C.borderWarm : 'rgba(237,232,220,0.06)'}`,
       }}
     >
-      {/* Case number */}
-      <div style={{ position: 'absolute', top: '1rem', right: '1rem', fontFamily: '"Courier New", monospace', fontSize: '0.55rem', color: 'rgba(255,255,255,0.15)', letterSpacing: '0.1em' }}>
-        CASE #{String(index + 1).padStart(3, '0')}
+      {/* Case number + classification — top row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <span style={{ ...T.casenum, color: C.faint }}>
+          CASE FILE / {String(index + 1).padStart(3, '0')}
+        </span>
+        <ClassificationStamp label="COMING SOON" color={C.red} />
       </div>
 
-      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginBottom: '0.7rem' }}>
-        <span style={{ fontSize: '1.6rem' }}>{game.icon}</span>
-        <div>
-          <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '1.05rem', fontWeight: 700, color: '#F0EDE8', margin: 0 }}>{game.title}</h3>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', color: game.color, letterSpacing: '0.06em' }}>{game.subtitle} · {game.chapters} chapters</span>
-        </div>
+      {/* Title + subtitle */}
+      <div style={{ marginBottom: '0.7rem' }}>
+        <h3 style={{ ...T.h3, color: hov ? C.gold : C.text, margin: '0 0 0.2rem', transition: `color 0.2s ease` }}>
+          {game.title}
+        </h3>
+        <span style={{ ...T.tiny, color: C.gold, letterSpacing: '0.1em' }}>
+          {game.subtitle} &nbsp;·&nbsp; {game.chapters} chapters
+        </span>
       </div>
 
-      <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.82rem', color: 'rgba(240,237,232,0.55)', margin: '0 0 0.9rem', lineHeight: 1.6 }}>{game.desc}</p>
+      {/* Description */}
+      <p style={{ ...T.small, color: C.muted, margin: '0 0 1rem' }}>{game.desc}</p>
 
-      {/* Teaser quote */}
-      <div style={{ padding: '0.6rem 0.9rem', background: game.color + '10', borderLeft: `3px solid ${game.color}`, borderRadius: '0 8px 8px 0', marginBottom: '0.9rem' }}>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.78rem', color: game.color, margin: 0, fontStyle: 'italic' }}>"{game.teaser}"</p>
+      {/* Red string teaser block */}
+      <div style={{
+        padding: '0.6rem 0.9rem',
+        background: C.redFaint,
+        borderLeft: `2px solid ${C.red}70`,
+        marginBottom: '1rem',
+      }}>
+        <p style={{ ...T.quote, color: C.gold, margin: 0, opacity: 0.85 }}>
+          &ldquo;{game.teaser}&rdquo;
+        </p>
       </div>
 
+      {/* Footer */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.58rem', color: DIFF_COLORS[game.difficulty], background: DIFF_COLORS[game.difficulty] + '18', padding: '0.15rem 0.5rem', borderRadius: '20px' }}>{game.difficulty}</span>
-          <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.58rem', color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.05)', padding: '0.15rem 0.5rem', borderRadius: '20px' }}>{game.tag}</span>
+        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+          <span style={{ ...T.tiny, color: DIFF_COLOR[game.difficulty], padding: '0.15rem 0.45rem', border: `1px solid ${DIFF_COLOR[game.difficulty]}35`, borderRadius: R.sm }}>
+            RISK: {DIFF_LABEL[game.difficulty]}
+          </span>
+          <span style={{ ...T.tiny, color: C.faint, padding: '0.15rem 0.45rem', border: `1px solid ${C.border}`, borderRadius: R.sm }}>
+            {game.tag}
+          </span>
         </div>
-        <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)' }}>coming soon</span>
+        {hov && (
+          <span style={{ ...T.tiny, color: C.gold, animation: `stampIn 0.15s ${EASE}` }}>
+            In development →
+          </span>
+        )}
       </div>
     </div>
   )
 }
 
-export default function MindGames() {
-  const [wing, setWing] = useState('mystery')
+// ── Puzzle card — looks like a physical evidence tag ──────────────────────────
+function PuzzleCard({ game, index }) {
+  const [hov, setHov] = useState(false)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080C14', paddingTop: '80px' }}>
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: hov ? C.surfaceHov : C.surface,
+        border: `1px solid ${hov ? C.borderWarm : C.border}`,
+        borderRadius: R.lg,
+        padding: '1.3rem',
+        cursor: 'default',
+        transition: `transform 0.25s ${EASE}, border-color 0.2s ease, background 0.2s ease`,
+        transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+        boxShadow: hov ? '0 8px 24px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.3)',
+        animation: `caseIn 0.45s ${EASE} ${index * 55}ms both`,
+      }}
+    >
+      {/* Corner fold — top right, like a dog-eared page */}
+      <div style={{
+        position: 'absolute', top: 0, right: 0,
+        width: 0, height: 0,
+        borderStyle: 'solid',
+        borderWidth: `0 20px 20px 0`,
+        borderColor: `transparent ${C.bg} transparent transparent`,
+        pointerEvents: 'none',
+        zIndex: 1,
+      }} />
+      <div style={{
+        position: 'absolute', top: 0, right: 0,
+        width: 20, height: 20,
+        background: `${game.color}25`,
+        clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
+        pointerEvents: 'none',
+      }} />
 
-      {/* ── Atmospheric header ── */}
-      <div style={{ position: 'relative', overflow: 'hidden', padding: '3rem 1.5rem 2.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {/* Background texture dots */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
-        {/* Corner accent */}
-        <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'radial-gradient(circle at top right, rgba(232,117,138,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      {/* Sequence number */}
+      <div style={{ ...T.casenum, color: C.faint, marginBottom: '0.7rem' }}>
+        EXHIBIT {String(index + 1).padStart(2, '0')}
+      </div>
+
+      {/* Title */}
+      <h3 style={{ ...T.h3, color: hov ? game.color : C.text, margin: '0 0 0.22rem', transition: `color 0.2s ease` }}>
+        {game.title}
+      </h3>
+      <span style={{ ...T.tiny, color: game.color, display: 'block', marginBottom: '0.7rem' }}>
+        {game.subtitle}
+      </span>
+
+      {/* Description */}
+      <p style={{ ...T.small, color: C.muted, margin: '0 0 1rem' }}>{game.desc}</p>
+
+      {/* Footer */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.3rem' }}>
+          <span style={{ ...T.tiny, color: DIFF_COLOR[game.difficulty], padding: '0.15rem 0.45rem', border: `1px solid ${DIFF_COLOR[game.difficulty]}35`, borderRadius: R.sm }}>
+            {DIFF_LABEL[game.difficulty]}
+          </span>
+          <span style={{ ...T.tiny, color: C.faint, padding: '0.15rem 0.45rem', border: `1px solid ${C.border}`, borderRadius: R.sm }}>
+            {game.tag}
+          </span>
+        </div>
+        <span style={{ ...T.tiny, color: C.faint }}>Coming soon</span>
+      </div>
+    </div>
+  )
+}
+
+// ── Tab — typewriter aesthetic ─────────────────────────────────────────────────
+function FileTab({ id, label, count, active, onClick, activeColor }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={() => onClick(id)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        padding: '0.55rem 1.2rem',
+        borderRadius: R.md,
+        border: `1px solid ${active ? activeColor + '55' : C.border}`,
+        background: active ? `${activeColor}12` : hov ? C.surfaceHov : 'transparent',
+        color: active ? activeColor : hov ? C.text : C.muted,
+        fontFamily: '"Special Elite", cursive',
+        fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.08em',
+        cursor: 'pointer',
+        transition: `all 0.2s ${EASE}`,
+      }}
+    >
+      {label}
+      <span style={{
+        ...T.tiny,
+        color: active ? activeColor : C.faint,
+        padding: '0.1rem 0.38rem',
+        background: active ? `${activeColor}18` : 'rgba(255,255,255,0.05)',
+        borderRadius: R.sm,
+      }}>{count}</span>
+    </button>
+  )
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+export default function MindGames() {
+  const [wing, setWing] = useState('mystery')
+  const isMystery = wing === 'mystery'
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.bg, paddingTop: '80px' }}>
+
+      {/* ── Header ── */}
+      <header style={{
+        position: 'relative', overflow: 'hidden',
+        padding: '3.5rem 2rem 2.5rem',
+        borderBottom: `1px solid ${C.border}`,
+        // Subtle paper grain texture via repeating gradient
+        backgroundImage: `repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(237,232,220,0.008) 2px,
+          rgba(237,232,220,0.008) 3px
+        )`,
+      }}>
+        {/* Warm corner glow — like a desk lamp in a dark room */}
+        <div aria-hidden style={{ position: 'absolute', top: 0, left: '-5%', width: 400, height: 400, background: `radial-gradient(circle at top left, rgba(200,169,110,0.045) 0%, transparent 65%)`, pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.9rem' }}>
-            <div style={{ width: '28px', height: '2px', background: '#E8758A' }} />
-            <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.15em', color: '#E8758A' }}>the district</span>
+
+          {/* Eyebrow — looks like a file stamp */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '1.4rem',
+          }}>
+            <span style={{ display: 'block', width: 20, height: 1, background: C.gold }} />
+            <span style={{ ...T.label, color: C.gold }}>District 03 / Case Files</span>
           </div>
-          <h1 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 700, color: '#F0EDE8', margin: '0 0 0.5rem', lineHeight: 1, letterSpacing: '-0.03em' }}>
-            Mind Games
+
+          {/* Title */}
+          <h1 style={{ ...T.h1, color: C.text, margin: '0 0 0.9rem' }}>
+            Mind <span style={{ color: C.red }}>Games</span>
           </h1>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '1rem', color: 'rgba(240,237,232,0.45)', maxWidth: '480px', lineHeight: 1.6, margin: '0 0 1.8rem', fontStyle: 'italic' }}>
-            Puzzles that make you think. Mysteries that make you feel. Challenges that refuse to let go.
+
+          {/* Subtitle */}
+          <p style={{ ...T.body, color: C.muted, maxWidth: 500, margin: '0 0 2rem' }}>
+            Puzzles that make you think. Mysteries that make you feel.
+            Challenges that refuse to let go.
           </p>
 
-          {/* Wing tabs */}
-          <div style={{ display: 'flex', gap: 0, background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '3px', width: 'fit-content', border: '2px solid rgba(255,255,255,0.07)' }}>
+          {/* Stats — like evidence count tags */}
+          <div style={{ display: 'flex', gap: '1px', marginBottom: '2rem', flexWrap: 'wrap' }}>
             {[
-              { id: 'mystery', label: '🕵️ Mystery Files', count: MYSTERY_GAMES.length },
-              { id: 'puzzle',  label: '🧩 Puzzle Room',   count: PUZZLE_GAMES.length  },
-            ].map(tab => (
-              <button key={tab.id} onClick={() => setWing(tab.id)}
-                style={{
-                  padding: '0.55rem 1.2rem', borderRadius: '7px', cursor: 'pointer', border: 'none',
-                  background: wing === tab.id ? (tab.id === 'mystery' ? '#E8758A' : '#5B9BD5') : 'transparent',
-                  color: wing === tab.id ? '#0A0A0F' : 'rgba(255,255,255,0.4)',
-                  fontFamily: 'Georgia, serif', fontSize: '0.85rem', fontWeight: wing === tab.id ? 700 : 400,
-                  transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                }}>
-                {tab.label}
-                <span style={{ fontFamily: '"Courier New", monospace', fontSize: '0.65rem', background: wing === tab.id ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.08)', padding: '0.1rem 0.4rem', borderRadius: '10px' }}>{tab.count}</span>
-              </button>
+              { label: 'Open Cases',   value: MYSTERY_GAMES.length, color: C.red  },
+              { label: 'Puzzle Types', value: PUZZLE_GAMES.length,  color: C.gold },
+              { label: 'Status',       value: 'All In Dev',         color: C.green },
+            ].map(({ label, value, color }, i) => (
+              <div key={label} style={{
+                padding: '0.6rem 1.2rem',
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: i === 0 ? `${R.md} 0 0 ${R.md}` : i === 2 ? `0 ${R.md} ${R.md} 0` : '0',
+                display: 'flex', alignItems: 'baseline', gap: '0.5rem',
+              }}>
+                <span style={{ fontFamily: '"Special Elite", cursive', fontSize: '1.3rem', color, lineHeight: 1 }}>{value}</span>
+                <span style={{ ...T.tiny, color: C.faint }}>{label}</span>
+              </div>
             ))}
           </div>
+
+          {/* File tabs */}
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <FileTab id="mystery" label="Mystery Files"  count={MYSTERY_GAMES.length} active={isMystery}  onClick={setWing} activeColor={C.red}  />
+            <FileTab id="puzzle"  label="Puzzle Room"    count={PUZZLE_GAMES.length}  active={!isMystery} onClick={setWing} activeColor={C.gold} />
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* ── Content ── */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2.5rem 1.5rem 5rem' }}>
+      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '2.5rem 2rem 5rem' }}>
 
-        {wing === 'mystery' && (
-          <>
-            <div style={{ marginBottom: '1.8rem' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '1.4rem', fontWeight: 700, color: '#F0EDE8', margin: '0 0 0.3rem' }}>The Mystery Files</h2>
-              <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', color: 'rgba(240,237,232,0.3)', margin: 0, letterSpacing: '0.04em' }}>story-driven · detective · investigate · solve</p>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-              {MYSTERY_GAMES.map((g, i) => <MysteryCard key={g.id} game={g} index={i} />)}
-            </div>
-          </>
-        )}
-
-        {wing === 'puzzle' && (
-          <>
-            <div style={{ marginBottom: '1.8rem' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '1.4rem', fontWeight: 700, color: '#F0EDE8', margin: '0 0 0.3rem' }}>The Puzzle Room</h2>
-              <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.7rem', color: 'rgba(240,237,232,0.3)', margin: 0, letterSpacing: '0.04em' }}>logic · patterns · language · memory · deduction</p>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-              {PUZZLE_GAMES.map((g, i) => <PuzzleCard key={g.id} game={g} index={i} />)}
-            </div>
-          </>
-        )}
-
-        {/* Bottom teaser */}
-        <div style={{ marginTop: '3rem', padding: '1.8rem', border: '2px dashed rgba(255,255,255,0.08)', borderRadius: '14px', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', color: 'rgba(240,237,232,0.3)', margin: '0 0 0.4rem', fontStyle: 'italic' }}>
-            "The game is afoot."
-          </p>
-          <p style={{ fontFamily: '"Courier New", monospace', fontSize: '0.62rem', color: 'rgba(240,237,232,0.18)', margin: 0, letterSpacing: '0.1em' }}>
-            GAMES COMING SOON · CHECK BACK OFTEN
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ ...T.h2, color: C.text, margin: '0 0 0.35rem' }}>
+            {isMystery ? 'The Mystery Files' : 'The Puzzle Room'}
+          </h2>
+          <p style={{ ...T.tiny, color: C.faint, margin: 0, letterSpacing: '0.08em' }}>
+            {isMystery
+              ? 'story-driven · detective · investigate · solve'
+              : 'logic · patterns · language · memory · deduction'}
           </p>
         </div>
-      </div>
+
+        {isMystery ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1rem' }}>
+            {MYSTERY_GAMES.map((g, i) => <MysteryCard key={g.id} game={g} index={i} />)}
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(265px, 1fr))', gap: '1rem' }}>
+            {PUZZLE_GAMES.map((g, i) => <PuzzleCard key={g.id} game={g} index={i} />)}
+          </div>
+        )}
+
+        {/* Dossier footer */}
+        <div style={{
+          marginTop: '3rem',
+          padding: '1.6rem 2rem',
+          border: `1px dashed ${C.border}`,
+          borderRadius: R.lg,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          background: C.surface,
+        }}>
+          <div>
+            <p style={{ ...T.body, color: C.muted, margin: '0 0 0.3rem', fontStyle: 'italic' }}>
+              "The game is afoot."
+            </p>
+            <p style={{ ...T.tiny, color: C.faint, margin: 0, letterSpacing: '0.1em' }}>
+              All cases in development. Check back often.
+            </p>
+          </div>
+          <ClassificationStamp label="IN DEVELOPMENT" color={C.gold} />
+        </div>
+      </main>
 
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=DM+Mono:wght@400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; }
+        ::selection { background: rgba(192,57,43,0.25); color: #EDE8DC; }
+
+        @keyframes caseIn {
+          from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes stampIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
       `}</style>
     </div>
