@@ -151,7 +151,7 @@ function ChatMessage({ role, content, isNew }) {
           marginTop: '2px',
           boxShadow: '0 0 12px rgba(123,47,190,0.4)',
         }}>
-          🤖
+          
         </div>
       )}
       <div style={{
@@ -181,7 +181,7 @@ function ChatMessage({ role, content, isNew }) {
           fontSize: '0.9rem', flexShrink: 0, marginLeft: '0.75rem',
           marginTop: '2px',
         }}>
-          👤
+          
         </div>
       )}
     </div>
@@ -197,7 +197,7 @@ function TypingIndicator() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '0.9rem',
       }}>
-        🤖
+        
       </div>
       <div style={{
         padding: '0.85rem 1.1rem',
@@ -348,11 +348,11 @@ ${pdfText.slice(0, 50000)}`
   }
 
   const SUGGESTED = [
-    '📋 Summarise this document for me',
-    '🔑 What are the key points?',
-    '❓ What is the main argument or purpose?',
-    '📊 Are there any statistics or data mentioned?',
-    '🎯 What conclusions does it reach?',
+    ' Summarise this document for me',
+    ' What are the key points?',
+    ' What is the main argument or purpose?',
+    ' Are there any statistics or data mentioned?',
+    ' What conclusions does it reach?',
   ]
 
   return (
@@ -398,7 +398,7 @@ ${pdfText.slice(0, 50000)}`
             border: '1px solid rgba(123,47,190,0.3)',
             borderRadius: '20px',
           }}>
-            <span style={{ fontSize: '0.9rem' }}>🤖</span>
+            <span style={{ fontSize: '0.9rem' }}></span>
             <span style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '0.6rem', letterSpacing: '0.1em', color: '#7B2FBE' }}>
               POWERED BY CLAUDE AI
             </span>
@@ -602,10 +602,10 @@ ${pdfText.slice(0, 50000)}`
             gap: '1rem',
           }}>
             {[
-              { emoji: '📤', title: 'Upload', desc: 'Drop any PDF — contracts, papers, reports, books' },
-              { emoji: '🤖', title: 'AI Reads It', desc: 'Claude AI processes every page instantly' },
-              { emoji: '💬', title: 'Ask Anything', desc: 'Chat with your document in plain English' },
-              { emoji: '✨', title: 'Get Answers', desc: 'Summaries, key points, specific details — anything' },
+              { emoji: '', title: 'Upload', desc: 'Drop any PDF — contracts, papers, reports, books' },
+              { emoji: '', title: 'AI Reads It', desc: 'Claude AI processes every page instantly' },
+              { emoji: '', title: 'Ask Anything', desc: 'Chat with your document in plain English' },
+              { emoji: '', title: 'Get Answers', desc: 'Summaries, key points, specific details — anything' },
             ].map(({ emoji, title, desc }) => (
               <div key={title} style={{
                 padding: '1.5rem',
