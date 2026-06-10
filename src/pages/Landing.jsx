@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import FairyCompanion from '../components/FairyCompanion/FairyCompanion'
+// import FairyCompanion from '../components/FairyCompanion/FairyCompanion'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
@@ -443,7 +443,7 @@ function ScrollHint() {
 // ── Landing ───────────────────────────────────────────────────────────────────
 export default function Landing() {
   const [phase, setPhase] = useState(0)
-  const [musicEnabled, setMusic] = useState(false)
+ // const [musicEnabled, setMusic] = useState(false)
   // 0→nothing  1→subtitle  2→divider  3→cards
 
   
@@ -514,15 +514,18 @@ export default function Landing() {
           letterSpacing: '0.12em',
           animation: `fadeUp 1s ${EASE} 3.2s both`,
         }}>
-          Built by Dzifa · Developer · Game Creator · World Builder
+          Built by Dzifa · Developer · Game Creator · World Creator
         </p>
       </div>
 
-      <ScrollHint />
-      <FairyCompanion
+      <ScrollHint /> 
+      
+       {/* <FairyCompanion
         musicEnabled={musicEnabled}
         onMusicToggle={() => setMusic(m => !m)}
-      />
+      /> */}
+      
+      
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400&family=Dancing+Script:wght@400;700&family=Special+Elite&family=Rajdhani:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
