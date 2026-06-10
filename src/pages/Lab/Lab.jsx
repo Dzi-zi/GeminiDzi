@@ -47,6 +47,17 @@ const T = {
 // ── Tool data ─────────────────────────────────────────────────────────────────
 const TOOLS = [
   {
+    id: 'myllm',
+    name: 'MyLLM',
+    ref: 'LAB-000',
+    description: 'GPT-style transformer built from scratch in PyTorch — custom tokenizer, multi-head attention, 163M-parameter architecture. Fine-tuned for spam classification (90.6% accuracy) and instruction following using real GPT-2 weights and the Alpaca dataset.',
+    path: 'https://github.com/Dzi-zi/MyLLM',
+    color: C.gold,
+    status: 'live',
+    tag: 'AI / ML',
+    external: true,
+  },
+  {
     id: 'docuchat',
     name: 'DocuChat',
     ref: 'LAB-001',
@@ -143,8 +154,16 @@ function ToolCard({ tool, index }) {
     <div
       role={isLive ? 'button' : undefined}
       tabIndex={isLive ? 0 : undefined}
-      onClick={() => isLive && navigate(tool.path)}
-      onKeyDown={e => e.key === 'Enter' && isLive && navigate(tool.path)}
+      onClick={() => {
+  if (!isLive) return
+  if (tool.external) { window.open(tool.path, '_blank'); return }
+  navigate(tool.path)
+}}
+onKeyDown={e => {
+  if (e.key !== 'Enter' || !isLive) return
+  if (tool.external) { window.open(tool.path, '_blank'); return }
+  navigate(tool.path)
+}}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -277,7 +296,7 @@ export default function Lab() {
 
           {/* Subtitle */}
           <p style={{ ...T.body, color: C.muted, maxWidth: 520, margin: '0 0 2rem' }}>
-            Seven tools built from scratch. AI, utilities, dashboards, and dev tools.
+            Eight tools built from scratch. AI, utilities, dashboards, and dev tools.
             All fully functional and deployable.
           </p>
 
