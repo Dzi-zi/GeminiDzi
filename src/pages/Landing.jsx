@@ -100,10 +100,22 @@ function Grid() {
 // Font, bg, accent, texture, tagline — all unique per district
 const PORTALS = [
   {
+    label: 'Main Projects',
+    sub: 'Featured work',
+    path: '/projects',
+    delay: 1800,
+    font: '"DM Sans", sans-serif',
+    color: '#E8A838',
+    bg: '#111008',
+    tagColor: 'rgba(232,168,56,0.15)',
+    texture: `linear-gradient(rgba(232,168,56,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(232,168,56,0.045) 1px, transparent 1px)`,
+    textureSize: '28px 28px',
+  },
+  {
     label: 'Arcade',
     sub: 'Afrofuturist games',
     path: '/arcade',
-    delay: 1800,
+    delay: 1920,
     // Identity: Orbitron, dark #0A0A14, gold accent, circuit dot grid
     font: 'Orbitron, sans-serif',
     color: '#D4AF37',
@@ -116,7 +128,7 @@ const PORTALS = [
     label: 'Glam Room',
     sub: 'Girly game hub',
     path: '/glamroom',
-    delay: 1920,
+    delay: 2040,
     // Identity: Dancing Script cursive, blush pink, hot pink accent
     font: '"Dancing Script", cursive',
     color: '#FF1493',
@@ -130,7 +142,7 @@ const PORTALS = [
     label: 'Mind Games',
     sub: 'Cases & puzzles',
     path: '/mindgames',
-    delay: 2040,
+    delay: 2160,
     // Identity: Special Elite typewriter, warm ink dark, evidence red
     font: '"Special Elite", cursive',
     color: '#C0392B',
@@ -143,7 +155,7 @@ const PORTALS = [
     label: 'The Lab',
     sub: 'Tools & utilities',
     path: '/lab',
-    delay: 2160,
+    delay: 2280,
     // Identity: Rajdhani, deep navy, blueprint blue, crosshatch grid
     font: '"Rajdhani", sans-serif',
     color: '#5B9BD5',
@@ -156,7 +168,7 @@ const PORTALS = [
     label: 'The Studio',
     sub: 'Design & poetry',
     path: '/studio',
-    delay: 2280,
+    delay: 2400,
     // Identity: Playfair Display, warm cream, antique gold — light bg
     font: '"Playfair Display", serif',
     color: '#B8882A',
@@ -170,7 +182,7 @@ const PORTALS = [
     label: 'My World',
     sub: 'About me',
     path: '/world',
-    delay: 2400,
+    delay: 2520,
     // Identity: Cinzel serif, warm charcoal, gold — personal
     font: 'Cinzel, serif',
     color: '#D4AF37',
@@ -183,7 +195,7 @@ const PORTALS = [
     label: 'The OS',
     sub: 'Personal README',
     path: '/os',
-    delay: 2520,
+    delay: 2640,
     // Identity: JetBrains Mono, near-black green, phosphor green
     font: '"JetBrains Mono", monospace',
     color: '#33FF66',
@@ -196,7 +208,7 @@ const PORTALS = [
     label: 'The Feed',
     sub: 'Books, music, film',
     path: '/feed',
-    delay: 2640,
+    delay: 2760,
     // Identity: Libre Baskerville, warm cream, editorial rose — light bg
     font: '"Libre Baskerville", serif',
     color: '#C2185B',

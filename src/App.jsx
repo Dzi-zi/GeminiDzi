@@ -24,6 +24,7 @@ import SankofaCards from './pages/Arcade/SankofaCards/SankofaCards'
 import SavannaSprint from './pages/Arcade/SavannaSprint/SavannaSprint'
 import GriotsAndSpirits from './pages/Arcade/GriotsAndSpirits/GriotsAndSpirits'
 import MamiWata from './pages/Arcade/MamiWata/MamiWata'
+import Projects from './pages/Projects/Projects'
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
         <Route path="/arcade/savanasprint" element={<SavannaSprint />} />
         <Route path="/arcade/griots" element={<GriotsAndSpirits />} />
         <Route path="/arcade/mamiwata" element={<MamiWata />} />
+        <Route path="/projects" element={<Projects />} />
       </Routes>
     </div>
   )
