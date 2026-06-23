@@ -41,8 +41,19 @@ const PROJECTS = [
     year: '2026',
   },
   {
-    id: 'myllm',
+    id: 'cinevault',
     ref: 'PRJ-002',
+    name: 'CineVault',
+    tagline: 'Full-stack movie and TV streaming platform with global playback, watchlists, and reviews.',
+    description: 'Search any title and watch it via embedded global stream sources with automatic fallback switching. Built with a secure Node.js/Express backend proxying the TMDB API, MongoDB Atlas for user data, and JWT authentication. Features user accounts, personal watchlists, and a 5-star review system — deployed as a serverless app on Vercel.',
+    stack: ['React', 'Vite', 'Node.js', 'Express', 'MongoDB', 'JWT', 'TMDB API', 'Vercel'],
+    live: 'https://cinevault-five-omega.vercel.app',
+    repo: 'https://github.com/Dzi-zi/cinevault',
+    year: '2026',
+  },
+  {
+    id: 'myllm',
+    ref: 'PRJ-003',
     name: 'MyLLM',
     tagline: 'GPT-2 transformer built from scratch in PyTorch — 163M parameters, fine-tuned end-to-end.',
     description: 'Implemented the full GPT-2 architecture including multi-head attention, positional embeddings, layer normalization, and feed-forward blocks. Trained across three stages: text generation pretraining, spam classification fine-tuning (90.6% test accuracy), and instruction tuning using real GPT-2 weights and the Alpaca dataset via HuggingFace safetensors.',
@@ -137,7 +148,7 @@ export default function Projects() {
           </div>
           <h1 style={{ ...T.h1, color: C.text, margin: '0 0 1rem' }}>Main Projects</h1>
           <p style={{ ...T.body, color: C.muted, maxWidth: 500, margin: '0 0 2rem' }}>
-            Two complete end-to-end builds. Source code and live deployments available for both.
+            Three complete builds with source code and live deployments available for each.
           </p>
           <div style={{ display: 'flex', border: `1px solid ${C.border}`, background: C.surface, width: 'fit-content' }}>
             {[
